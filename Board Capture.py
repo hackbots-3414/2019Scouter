@@ -6,13 +6,13 @@ Created on Thu Jan 25 10:05:45 2018
 For questions or assistance, email maxwell.ledermann@gmail.com
 """
 
-import cv2
-import numpy as np
+import cv2 #install as opencv-python
+import numpy as np #install
 import math
 import datetime
 import pickle
-import openpyxl as pyxl
-import keyboard
+import openpyxl as pyxl #install
+import keyboard #install
 import sys
 
 DEBUG = False
@@ -282,3 +282,20 @@ while(True):
 
 cap.release()
 cv2.destroyAllWindows()
+"""
+Target to 2019 board translation
+SANDSTORM
+Cross Baseline - 9
+Platform 1 - 10
+Platform 2 - 11
+ENDGAME
+Platform 1 - 12
+Platform 2 - 13
+Platform 3 - 14
+Assist - 15
+ROCKET
+CARGO
+LOW - 16
+MID - 17
+HIGH - 14
+HATCH
