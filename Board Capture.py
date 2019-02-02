@@ -4,8 +4,9 @@ Created on Thu Jan 25 10:05:45 2018
 
 @author: Maxwell Ledermann
 For questions or assistance, email maxwell.ledermann@gmail.com
+Maintained By Jon Vaysman and Roman Michels :)
 """
-
+import sys
 import cv2 #install as opencv-python
 import numpy as np #install
 import math
@@ -13,10 +14,9 @@ import datetime
 import pickle
 import openpyxl as pyxl #install
 import keyboard #install
-import sys
 
 DEBUG = False
-scan = False
+scan = True
 blank_scan = np.empty((480,640,3))
 cv2.imshow("Scan",blank_scan)
 print("3414 Hackbots 2019 Pre-Season Scouting Program")
@@ -87,21 +87,24 @@ while(True):
         cv2.putText(frame,str("Match Number: " +str( match_number)),(5,30),font,.5,(255,255,255),1,cv2.LINE_AA)
 
         #Establish variables 
-        starting_position = ["left","center","right"]
+        rocket_cargo_low = 2
+        rocket_cargo_mid = 2
+        rocket_cargo_high = 2
+        rocket_hatch_low = 2
+        rocket_hatch_mid = 2
+        rocket_hatch_high = 2
+        cargoship_cargo = 8
+        cargoship_hatch = 8
         crossed_baseline = True
-        preload_cube = ["switch","scale"]
-        second_cube = ["switch","scale"]
-        found_scale = 10
-        found_switch = 10
-        found_op_switch = 10
-        found_vault = 10
-        climbed = True
-        parked = True
-        lift_one = True
-        lift_two = True
-        was_lifted = True
-        plate_config = ["LLL","RRR","LRL","RLR"]
+        sandstorm_platform_one = True
+        sandstorm_platform_two = True
+        endgame_platform_one = True
+        endgame_platform_two = True
+        endgame_platform_three = True
+        endgame_assist = True
+        
         alliance_station = ""
+        
         
         targets_highlighted = frame.copy()
         screenshot = frame.copy()    
@@ -150,7 +153,6 @@ while(True):
             M = cv2.getPerspectiveTransform(object_corners,pts2)
             object_warped = cv2.warpPerspective(frame,M,(400,400))   
             object_warped_gray = cv2.cvtColor(object_warped,cv2.COLOR_BGR2GRAY)
-            
             for target_to_match in ((range(1,22) + range(79,85))):
                 match_template = cv2.imread('targets/target' + str(target_to_match) + '.png',0)
                 method = eval('cv2.TM_CCOEFF_NORMED')
@@ -162,7 +164,7 @@ while(True):
                     matched_pts = [top_left,top_right,bottom_right,bottom_left]
                     matched_pts = np.array(matched_pts, np.int32)
                     matched_pts = matched_pts.reshape((-1,1,2))
-            
+            #-------------------------------------------------------------------------------------------
                 if match_score > .7:
                     cv2.polylines(targets_highlighted,[matched_pts],True,(0,255,0),2)
                     cv2.imshow("Scan",targets_highlighted)
@@ -170,36 +172,36 @@ while(True):
                         save_data = False
                         break
                     if target_to_match == 1:
-                        starting_position.remove("left")
+                         rocket_cargo_low -= 1
                     elif target_to_match == 2:
-                        starting_position.remove("center")
+                        rocket_cargo_mid -= 1
                     elif target_to_match == 3:
-                        starting_position.remove("right")
+                        rocket_cargo_high -= 1
                     elif target_to_match == 4:
-                        crossed_baseline = False
+                        rocket_hatch_low -= 1
                     elif target_to_match == 5:
-                        preload_cube.remove("switch")
+                        rocket_hatch_mid -= 1
                     elif target_to_match == 6:
-                        preload_cube.remove("scale")
+                        rocket_hatch_high -= 1
                     elif target_to_match == 7:
-                        second_cube.remove("switch")
+                        cargoship_cargo -= 1
                     elif target_to_match == 8:
-                        second_cube.remove("scale")
+                        cargoship_hatch -= 1
                     elif target_to_match == 9:
-                        found_scale -= 1
+                        crossed_baseline = False
                     elif target_to_match == 10:
-                        found_switch -= 1
+                        sandstorm_platform_one = False
                     elif target_to_match == 11:
-                        found_op_switch -= 1
+                        sandstorm_platform_two = False
                     elif target_to_match == 12:
-                        found_vault -= 1
+                        endgame_platform_one = False
                     elif target_to_match == 13:
-                        climbed = False
+                        endgame_platform_two = False
                     elif target_to_match == 14:
-                        parked = False
+                        endgame_platform_three = False
                     elif target_to_match == 15:
-                        lift_one = False
-                    elif target_to_match == 16:
+                        endgame_assist = False
+                    """               elif target_to_match == 16:
                         lift_two = False
                     elif target_to_match == 17:
                         was_lifted = False
@@ -222,7 +224,8 @@ while(True):
                     elif target_to_match == 83:
                         alliance_station = "Blue2"
                     elif target_to_match == 84:
-                        alliance_station = "Blue3"
+                        alliance_station = "Blue3" 
+    """
                     break
                 
             if save_data == False:
@@ -234,9 +237,14 @@ while(True):
             if DEBUG == True:
                 cv2.imwrite("found targets highlighted.png",targets_highlighted)
             
-            export_data = []
-            export_data = [alliance_station,starting_position,plate_config,crossed_baseline,preload_cube,second_cube,found_scale,found_switch,found_op_switch,found_vault, \
-            climbed,parked,lift_one,lift_two,was_lifted]
+            export_data = [rocket_cargo_low,rocket_cargo_mid, 
+            rocket_cargo_high,rocket_hatch_low,rocket_hatch_mid,rocket_hatch_high,
+            cargoship_cargo,cargoship_hatch,crossed_baseline,sandstorm_platform_one,
+            sandstorm_platform_two,endgame_platform_one,endgame_platform_two,
+            endgame_platform_three,endgame_assist]             
+         #   export_data = [alliance_station,starting_position,plate_config,crossed_baseline,preload_cube,second_cube,found_scale,found_switch,found_op_switch,found_vault, \
+          #  climbed,parked,lift_one,lift_two,was_lifted]
+          #  export_data=[x]
             
             for data_index in range(len(export_data)):
                 if isinstance(export_data[data_index],list):
@@ -284,18 +292,19 @@ cap.release()
 cv2.destroyAllWindows()
 """
 Target to 2019 board translation
-SANDSTORM
+ROCKET CARGO LOW - 1
+ROCKET CARGO MID - 2
+ROCKET CARGO HIGH - 3
+ROCKET HATCH LOW - 4
+ROCKET HATCH MID - 5
+ROCKET HATCH HIGH - 6
+CARGO SHIP CARGO - 7
+CARGO SHIP HATCH - 8
 Cross Baseline - 9
-Platform 1 - 10
-Platform 2 - 11
-ENDGAME
-Platform 1 - 12
-Platform 2 - 13
-Platform 3 - 14
-Assist - 15
-ROCKET
-CARGO
-LOW - 16
-MID - 17
-HIGH - 14
-HATCH
+SANDSTORM PLATFORM ONE - 10
+SANDSTORM PLATFORM TWO - 11
+ENDGAME PLATFORM ONE - 12
+ENDGAME PLATFORM TWO - 13
+ENDGAME PLATFORM THREE - 14
+ENDGAME ASSIST - 15
+"""
