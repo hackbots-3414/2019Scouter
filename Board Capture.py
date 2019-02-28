@@ -4,6 +4,7 @@ Created on Thu Jan 25 10:05:45 2018
 
 @author: Maxwell Ledermann
 For questions or assistance, email maxwell.ledermann@gmail.com
+Maintained by Roman Michels; Last updated on 2/9/2019
 """
 
 import cv2
@@ -24,7 +25,7 @@ print("Press 'Esc' to exit the program\n")
 codes_directory="Nonacodes" #Default is "Nonacodes", change if using a different code storage folder.
 createcodes.createCodes() #Creates codes in "Nonacodes" folder. Irrelevant if codes_directory is changed
 
-pickle.dump((0,0,False), open('entry data.p','wb'))
+pickle.dump((0,0,False), open('entry data.p','wb')) 
 rescan=False
 last_scan=[-1,-1] #-1 is used as a placeholder value to indicate no scan has been completed yet.
 cv2.namedWindow('Camera Capture')
@@ -50,9 +51,10 @@ except:
     wb = pyxl.Workbook()
     ws = wb.active
     #Titles of columns in spreadsheet. These names do not have to exactly match the variables variable names.
-    header = ["Time","Team Number","Match Number", "Alliance Station","Starting Position","Plate Config", \
-    "Crossed Baseline","Preload Cube","Second Cube","Teleop Scale","Teleop Switch","Teleop Op Switch", \
-    "Teleop Vault", "Climbed","Parked","Lifted One","Lifted Two","Was Lifted"]
+    header = ["Time","Team Number","Match Number","Rocket Cargo Low","Rocket Cargo Mid", \
+    "Rocket Cargo High","Rocket Hatch Low","Rocket Hatch Mid","Rocket Hatch High","Cargo Ship Cargo", \
+    "Cargo Ship Hatch", "Crossed Baseline", "Sandstorm Platform One", "Sandstorm Platform Two", \
+    "Endgame Platform One", "Endgame Platform Two", "Endgame Platform Three", "Endgame Assist"]
     for header_column in header:
         ws.cell(row=1, column=(header.index(header_column)+1)).value = header_column
 
@@ -77,59 +79,36 @@ def code_matching(code,variables):
     false_positive = False
     try:
         if code_to_match == 1:
-            variables["starting_position"].remove("left")
+            variables["rocket_cargo_low"] -= 1
         elif code_to_match == 2:
-            variables["starting_position"].remove("center")
+            variables["rocket_cargo_mid"] -= 1
         elif code_to_match == 3:
-            variables["starting_position"].remove("right")
+            variables["rocket_cargo_high"] -= 1
         elif code_to_match == 4:
-            variables["crossed_baseline"] = False
+            variables["rocket_hatch_low"] -= 1
         elif code_to_match == 5:
-            variables["preload_cube"].remove("switch")
+            variables["rocket_hatch_mid"] -= 1
         elif code_to_match == 6:
-            variables["preload_cube"].remove("scale")
+            variables["rocket_hatch_high"] -= 1
         elif code_to_match == 7:
-            variables["second_cube"].remove("switch")
+            variables["cargoship_cargo"] -= 1
         elif code_to_match == 8:
-            variables["second_cube"].remove("scale")
+            variables["cargoship_hatch"] -= 1
         elif code_to_match == 9:
-            variables["found_scale"] -= 1
+            variables["cross_baseline"] = False
         elif code_to_match == 10:
-            variables["found_switch"] -= 1
+            variables["sandstorm_platform_one"] = False
         elif code_to_match == 11:
-            variables["found_op_switch"] -= 1
+            variables["sandstorm_platform_two"] = False
         elif code_to_match == 12:
-            variables["found_vault"] -= 1
+            variables["endgame_platform_one"] = False
         elif code_to_match == 13:
-            variables["climbed"] = False
+            variables["endgame_platform_two"] = False
         elif code_to_match == 14:
-            variables["parked"] = False
+            variables["endgame_platform_three"] = False
         elif code_to_match == 15:
-            variables["lift_one"] = False
-        elif code_to_match == 16:
-            variables["lift_two"] = False
-        elif code_to_match == 17:
-            variables["was_lifted"] = False
-        elif code_to_match == 18:
-            variables["plate_config"].remove("LLL")
-        elif code_to_match == 19:
-            variables["plate_config"].remove("RRR")
-        elif code_to_match == 20:
-            variables["plate_config"].remove("LRL")
-        elif code_to_match == 21:
-            variables["plate_config"].remove("RLR")
-        elif code_to_match == 79:
-            variables["alliance_station"] = "Red1"
-        elif code_to_match == 80:
-            variables["alliance_station"] = "Red2"
-        elif code_to_match == 81:
-            variables["alliance_station"] = "Red3"
-        elif code_to_match == 82:
-            variables["alliance_station"] = "Blue1"
-        elif code_to_match == 83:
-            variables["alliance_station"] = "Blue2"
-        elif code_to_match == 84:
-            variables["alliance_station"] = "Blue3"
+            variables["endgame_assist"] = False
+
     except:
         print("BAD SCAN: Too many copies of code" + str(code_to_match) + " detected.")
         false_positive = True
@@ -190,21 +169,21 @@ while(True):
         print("Now scanning frame. Press 'c' to cancel the scan and not save any data.")
         
         #Variables should be in the order they are appear on the spreadsheet left to right.
-        variables = {"alliance_station":"",
-                        "plate_config":["LLL","RRR","LRL","RLR"],
-                        "starting_position":["left","center","right"],
-                        "crossed_baseline":True,
-                        "preload_cube":["switch","scale"],
-                        "second_cube":["switch","scale"],
-                        "found_scale":10,
-                        "found_switch":10,
-                        "found_op_switch":10,
-                        "found_vault":10,
-                        "climbed":True,
-                        "parked":True,
-                        "lift_one":True,
-                        "lift_two":True,
-                        "was_lifted":True,}
+        variables = {   "rocket_cargo_low":2,
+                        "rocket_cargo_mid":2,
+                        "rocket_cargo_high":2,
+                        "rocket_hatch_low":2,
+                        "rocket_hatch_mid":2,
+                        "rocket_hatch_high":2,
+                        "cargoship_cargo":8,
+                        "cargoship_hatch":8,
+                        "cross_baseline":True,
+                        "sandstorm_platform_one":True,
+                        "sandstorm_platform_two":True,
+                        "endgame_platform_one":True,
+                        "endgame_platform_two":True,
+                        "endgame_platform_three":True,
+                        "endgame_assist":True}
         
         codes_highlighted = frame.copy()
         cv2.imshow("Scan",codes_highlighted)
